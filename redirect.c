@@ -8,17 +8,17 @@
 #include <unistd.h>
 
 char **split_command(const char *cmd) {
-    char **args = malloc(64 * sizeof(char *));
+    char **commands = malloc(64 * sizeof(char *));
     int i = 0;
-    char *cmd_dup = strdup(cmd);
-    char *token = strtok(cmd_dup, " ");
+    char *cmd_copy = strdup(cmd);
+    char *token = strtok(cmd_copy, " ");
 
     while (token != NULL && i < 63) {
-        args[i++] = token;
+        commands[i++] = token;
         token = strtok(NULL, " ");
     }
-    args[i] = NULL;
-    return args;
+    commands[i] = NULL; 
+    return commands;
 }
 
 char *find_command_path(const char *command) {
@@ -49,12 +49,12 @@ int main(int argc, char *argv[]) {
     char *out = argv[3];
 
     // Split the cmd string into separet arguments
-    char **args = split_command(cmd);
+    char **command = split_command(cmd);
 
     // Find the absolute path of the command
-    char *cmd_path = find_command_path(args[0]);
+    char *cmd_path = find_command_path(command[0]);
     if (!cmd_path) {
-        fprintf(stderr, "Command not found: %s\n", args[0]);
+        fprintf(stderr, "Command not found: %s\n", command[0]);
         return 1;
     }
 
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
             dup2(output_fd, STDOUT_FILENO);
             close(output_fd);
         }
-        execvp(args[0], args);
+        execvp(command[0], command);
         perror("execvp");
         exit(1);
     } else if (pid > 0) {
